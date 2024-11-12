@@ -24,7 +24,7 @@ def parsing_csv():
     :return: None
     """
 
-    data = pd.read_csv('Обезличенные данные.csv', delimiter=';', skiprows=1,
+    data = pd.read_csv('../Обезличенные данные.csv', delimiter=';', skiprows=1,
                        names=['id', 'user_id', 'tracker_id', 'type', 'value', 'sys', 'dia', 'time'],
                        dtype=str).fillna(None)
 
@@ -47,7 +47,7 @@ def update_user_data():
     :return: None
     """
 
-    df = pd.read_csv('users.csv', sep=';')
+    df = pd.read_csv('../users.csv', sep=';')
     today = datetime.now()
 
     def calculate_age(birth_date):
@@ -81,7 +81,7 @@ def update_user_gender():
     для каждого пациента по его user_id.
     :return: None
     """
-    gender_data = pd.read_csv("gender.csv", sep=";")
+    gender_data = pd.read_csv("../gender.csv", sep=";")
     gender_data['gender'] = gender_data['avatar_gender'].apply(lambda x: '1' if x == 'MALE' else '0')
 
     for _, row in gender_data.iterrows():
