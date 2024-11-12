@@ -12,6 +12,7 @@ mysql_connect = mysql.connector.connect(
 )
 cursor = mysql_connect.cursor()
 
+# SQL запрос для получения статистики по данным
 query = """
     SELECT user_id,
     
@@ -161,11 +162,13 @@ features = df[
     ]
 ]
 
+# Агломеративная иерархическая кластеризация с использованием метода Уорда
 linked = linkage(features, method='ward')
 clusters = fcluster(linked, t=4, criterion='maxclust')
 df['cluster'] = clusters
 cluster_counts = pd.Series(clusters).value_counts().sort_index()
 
+# Сохранение результатов кластеризации в текстовый файл
 with open("Agglomerative_clustering.txt", "w") as f:
     for cluster, count in cluster_counts.items():
         f.write(f"Кластер {cluster}: {count} пациентов\n")
@@ -175,6 +178,14 @@ with open("Agglomerative_clustering.txt", "w") as f:
         cluster_users = df[df['cluster'] == cluster]['user_id'].tolist()
         f.write(", ".join(map(str, cluster_users)) + "\n")
 
+# Обновлние базы данных, добавление метки кластеров для каждого пациента
+for _, row in df.iterrows():
+    user_id = row['user_id']
+    cluster = row['cluster']
+    cursor.execute("""UPDATE Classification SET cluster = %s WHERE user_id = %s""", (cluster, user_id))
+mysql_connect.commit()
+
+# Выполняется PCA и строится график кластеров в 2D пространстве
 pca = PCA(n_components=2)
 pca_features = pca.fit_transform(features)
 
